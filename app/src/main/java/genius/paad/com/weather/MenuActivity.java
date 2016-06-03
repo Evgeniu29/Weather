@@ -80,7 +80,7 @@ public class MenuActivity extends AppCompatActivity {
         townList.clear();
         townList.add("London");
         townList.add("Pekin");
-        townList.add("Ottawa");
+        townList.add("Donetsk");
 
 
     }

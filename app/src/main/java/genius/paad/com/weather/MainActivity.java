@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                                   weatherUrl = template + "=" + townName + "=" + key;
                                                   new ParseTask(weatherUrl).execute();
                                               } else {
-                                                  weatherUrl = "http://api.openweathermap.org/data/2.5/weather?q=Dnepropetrovsk=524901&APPID=fea8931edad2b0eb4688fdf3ac9d7008";
+                                                  weatherUrl = "http://api.openweathermap.org/data/2.5/weather?q=Dnipropetrovsk=524901&APPID=fea8931edad2b0eb4688fdf3ac9d7008";
                                                   new ParseTask(weatherUrl).execute();
                                               }
                                           }
