@@ -32,8 +32,12 @@ public class Weather {
 
     String humidity = new String();
 
+    Long sunrise;
 
-    Weather(String townName, String image, String averageTemperature, String weatherDescription, String maxTemperature, String minTemperature, String wind, String pressure, String humidity) {
+    Long sunset;
+
+
+    Weather(String townName, String image, String averageTemperature, String weatherDescription, String maxTemperature, String minTemperature, String wind, String pressure, String humidity,long sunset, long sunrise) {
 
         this.townName = townName;
         this.image = image;
@@ -44,6 +48,9 @@ public class Weather {
         this.wind = wind;
         this.pressure = pressure;
         this.humidity = humidity;
+        this.sunset = sunset;
+        this.sunrise = sunrise;
+
 
     }
 
@@ -57,6 +64,10 @@ public class Weather {
         this.wind = "";
         this.pressure = "";
         this.humidity = "";
+        this.sunset = 0L;
+        this.sunrise = 0L;
+
+
 
     }
 
@@ -133,5 +144,26 @@ public class Weather {
     public void setHumidity(String numidity) {
         this.humidity = numidity;
     }
+
+    public Long getSunrise() {
+        return sunrise;
+    }
+
+    public void setSunrise(Long sunrise) {
+        this.sunrise = sunrise;
+    }
+
+
+
+    public Long getSunset() {
+        return sunset;
+    }
+
+    public void setSunset(Long sunset) {
+        this.sunset = sunset;
+    }
+
+
+
 
 }

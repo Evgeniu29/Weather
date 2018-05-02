@@ -9,6 +9,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import static java.sql.Types.INTEGER;
+
 /**
  * Created by son on 21.03.2018.
  */
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 public class SqliteDatabase extends SQLiteOpenHelper {
 
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
     private static final String DATABASE_NAME = "weather";
     private static final String TABLE_weathers = "weathers";
 
@@ -40,6 +42,10 @@ public class SqliteDatabase extends SQLiteOpenHelper {
 
     private static final String COLUMN_humidity = "humidity";
 
+    private static final String COLUMN_sunset = "sunset";
+
+    private static final String COLUMN_sunrise = "sunrise";
+
 
     public SqliteDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -49,10 +55,10 @@ public class SqliteDatabase extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_PRODUCTS_TABLE = "CREATE    TABLE " + TABLE_weathers + "(" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_TOWNNAME + " TEXT," + COLUMN_image + " TEXT," +
                 COLUMN_averageTemperature + " TEXT," +
-                COLUMN_weatherDescription + " TEXT," + COLUMN_maxTemperature + " TEXT," + COLUMN_minTemperature + " TEXT," + COLUMN_wind + " TEXT," + COLUMN_pressure + " TEXT," + COLUMN_humidity + " TEXT" +
+                COLUMN_weatherDescription + " TEXT," + COLUMN_maxTemperature + " TEXT," + COLUMN_minTemperature + " TEXT," + COLUMN_wind + " TEXT," + COLUMN_pressure + " TEXT," + COLUMN_humidity + " TEXT,"   + COLUMN_sunset + " INTEGER,"+ COLUMN_sunrise + " INTEGER"
 
 
-                ")";
+        +")";
         db.execSQL(CREATE_PRODUCTS_TABLE);
     }
 
@@ -89,7 +95,12 @@ public class SqliteDatabase extends SQLiteOpenHelper {
 
                 String humidity = cursor.getString(9);
 
-                weathers.add(new Weather(townName, image, averageTemperature, weatherDescription, maxTemperature, minTemperature, wind, pressure, humidity));
+                long sunset = cursor.getLong(10);
+
+                long sunrise = cursor.getLong(11);
+
+
+                weathers.add(new Weather(townName, image, averageTemperature, weatherDescription, maxTemperature, minTemperature, wind, pressure, humidity,  sunset,  sunrise));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -113,10 +124,15 @@ public class SqliteDatabase extends SQLiteOpenHelper {
             values.put(COLUMN_wind, weather.getWind());
             values.put(COLUMN_pressure, weather.getPressure());
             values.put(COLUMN_humidity, weather.getHumidity());
+            values.put(COLUMN_sunset, weather.getSunset());
+            values.put(COLUMN_sunrise, weather.getSunrise());
+
+
 
             SQLiteDatabase db = this.getWritableDatabase();
 
             db.insert(TABLE_weathers, null, values);
+
 
             return;
         }
@@ -138,6 +154,8 @@ public class SqliteDatabase extends SQLiteOpenHelper {
         values.put(COLUMN_wind, weather.getWind());
         values.put(COLUMN_pressure, weather.getPressure());
         values.put(COLUMN_humidity, weather.getHumidity());
+        values.put(COLUMN_sunset, weather.getSunset());
+        values.put(COLUMN_sunrise, weather.getSunrise());
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.update(TABLE_weathers, values, COLUMN_TOWNNAME + "    = ?", new String[]{String.valueOf(weather.getTownName())});
@@ -175,7 +193,14 @@ public class SqliteDatabase extends SQLiteOpenHelper {
 
             String humidity = cursor.getString(9);
 
-            weather = new Weather(townName, image, averageTemperature, weatherDescription, maxTemperature, minTemperature, wind, pressure, humidity);
+            long sunset = cursor.getLong(10);
+
+            long sunrise = cursor.getLong(11);
+
+
+
+
+            weather = new Weather(townName, image, averageTemperature, weatherDescription, maxTemperature, minTemperature, wind, pressure, humidity,    sunset,  sunrise);
         } else {
             return new Weather();
         }
@@ -219,6 +244,11 @@ public class SqliteDatabase extends SQLiteOpenHelper {
                 values.put(COLUMN_minTemperature, weatherList.get(i).getMinTemperature());
                 values.put(COLUMN_wind, weatherList.get(i).getWind());
                 values.put(COLUMN_pressure, weatherList.get(i).getPressure());
+
+                values.put(COLUMN_sunset, weatherList.get(i).getSunset());
+
+                values.put(COLUMN_sunrise, weatherList.get(i).getSunrise());
+
 
                 db.insert(TABLE_weathers, null, values);
             }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "994009675696",
+    "firebase_url": "https://gold-pod-196614.firebaseio.com",
+    "project_id": "gold-pod-196614",
+    "storage_bucket": "gold-pod-196614.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994009675696:android:be85ec4f2ecfbc00",
+        "android_client_info": {
+          "package_name": "genius.paad.com.weather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "994009675696-s1tbg6108hlrn3lf4vlup2o2m05r5o6f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgCsrmUaYFlCJFtiOGbtJBxvj_IPSjPQY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
