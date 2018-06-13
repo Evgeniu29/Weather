@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Погода</string>
+    <string name="warning">Город не найден. Проверьте правильность  ввода.</string>
+    <string name="celsius">celsius</string>
+    <string name="kelvin">kelvin</string>
+    <string name="farengeit">farengeit</string>
+    <string name="remove">Удалить  все записи из базы данных?</string>
+    <string name="wind">ветер</string>
+    <string name="pressure">давление</string>
+    <string name="max">max</string>
+    <string name="min">min</string>
+    <string name="humidity">Влажность</string>
+    <string name="ms">м/с</string>
+    <string name="mmHg">мм рт. ст.</string>
+    <string name="percent">%</string>
+    <string name="clear_sky">ясно</string>
+    <string name="few_clouds">малооблачно</string>
+    <string name="scattered_clouds">переменная облачность</string>
+    <string name="broken_clouds">пасмурно</string>
+    <string name="shower_rain">сильный дождь</string>
+    <string name="rain">дождь</string>
+    <string name="thunderstorm">гроза</string>
+    <string name="snow">снег</string>
+    <string name="mist">туман</string>
+    <string name="find">Поиск города в базе данных</string>
+    <string name="offline">Устройство офлайн. Соединение не найдено.</string>
+    <string name="forecast">Прогноз погоды на 3 дня</string>
+    <string name="grad">ºC</string>
+    <string name="date">Дата</string>
+    <string name="time">Время</string>
+
+
+
+
+
+
+    <string-array name="grad">
+        <item>@string/celsius</item>
+        <item>@string/kelvin</item>
+        <item>@string/farengeit</item>
+    </string-array>
+</resources>

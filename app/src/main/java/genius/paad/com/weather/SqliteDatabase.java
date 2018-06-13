@@ -214,50 +214,11 @@ public class SqliteDatabase extends SQLiteOpenHelper {
         db.delete(TABLE_weathers, COLUMN_TOWNNAME + "    = ?", new String[]{String.valueOf(townName)});
     }
 
-    public void delete_byID(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String where = COLUMN_ID + " = ?";
-        String[] whereArgs = {String.valueOf(id)};
-
-        db.delete(TABLE_weathers, where, whereArgs);
-    }
 
     public void deleteAllWeathers() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from " + TABLE_weathers);
+
     }
-
-    public void addSelected(ArrayList<Weather> weatherList) {
-
-        int size = weatherList.size();
-
-
-        SQLiteDatabase db = getWritableDatabase();
-        try {
-            for (int i = 0; i < size; ++i) {
-                ContentValues values = new ContentValues();
-                values.put(COLUMN_TOWNNAME, weatherList.get(i).getTownName());
-                values.put(COLUMN_image, weatherList.get(i).getImage());
-                values.put(COLUMN_averageTemperature, weatherList.get(i).getAverageTemperature());
-                values.put(COLUMN_weatherDescription, weatherList.get(i).getWeatherDescription());
-                values.put(COLUMN_maxTemperature, weatherList.get(i).getMaxTemperature());
-                values.put(COLUMN_minTemperature, weatherList.get(i).getMinTemperature());
-                values.put(COLUMN_wind, weatherList.get(i).getWind());
-                values.put(COLUMN_pressure, weatherList.get(i).getPressure());
-
-                values.put(COLUMN_sunset, weatherList.get(i).getSunset());
-
-                values.put(COLUMN_sunrise, weatherList.get(i).getSunrise());
-
-
-                db.insert(TABLE_weathers, null, values);
-            }
-            db.close();
-        } catch (Exception e) {
-            Log.e("Problem", e + " ");
-        }
-    }
-
-
 }
 

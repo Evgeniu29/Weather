@@ -6,35 +6,40 @@ import android.app.Activity;
 import android.app.Fragment;
 
 import android.app.FragmentTransaction;
-import android.content.Context;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -61,6 +66,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +75,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
 
@@ -112,17 +118,21 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private static final String[] paths = {"Celsius", "Kelvin", "Farenheit"};
     private static final String[] remove = {"Remove all weathers"};
 
-    ArrayAdapter<String> adapter;
     TextView cityText, description, average, max, min, wind, pressure, humidity;
     private GoogleApiClient client;
     EditText offlineEditText;
     public String cityLocale;
+    WifiManager wm;
+    ImageView fone;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         db = new SqliteDatabase(getApplicationContext());
 
@@ -131,6 +141,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         average = (TextView) findViewById(R.id.average);
 
         image = (ImageView) findViewById(R.id.image);
+
+        fone = (ImageView) findViewById(R.id.fone);
 
         description = (TextView) findViewById(R.id.description);
 
@@ -144,27 +156,40 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         offlineEditText = (EditText) findViewById((R.id.offlibeEditText));
 
+        offlineEditText.setHint(getResources().getString(R.string.find));
 
-        simpleProgressBar = (ProgressBar) findViewById(R.id.progress);
-
-        delete = (Button) findViewById(R.id.delete);
-
-        delete.setOnClickListener(new View.OnClickListener() {
+        offlineEditText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                db.deleteAllWeathers();
+            public boolean onLongClick(View v) {
+                PopupMenu popup = new PopupMenu(getApplicationContext(), v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu, popup.getMenu());
+                popup.show();
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+
+                            case R.id.remove:
+                                db.deleteAllWeathers();
+                                return true;
+
+                            default:
+                                return false;
+                        }
+
+                    }
+
+                });
+
+                return true;
+
             }
         });
 
-        spinner = (Spinner) findViewById(R.id.spinner);
+        simpleProgressBar = (ProgressBar) findViewById(R.id.progress);
 
-        adapter = new ArrayAdapter<String>(MainActivity.this,
-                android.R.layout.simple_spinner_item, paths);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
 
         PlaceAutocompleteFragment places = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -173,7 +198,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
                 findViewById(R.id.place_autocomplete_search_input)).
 
-                setTextSize(40.0f);
+                setTextSize(18.0f);
 
         AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
@@ -202,6 +227,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                                                               Address address = addresses.get(0);
                                                               code = address.getCountryCode();
                                                               townName = address.getLocality();
+                                                              connect();
 
 
                                                           } catch (NullPointerException e) {
@@ -210,8 +236,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                                                               return;
                                                           }
 
-
-                                                          connect();
                                                       }
 
 
@@ -223,68 +247,53 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                                                       }
                                                   });
 
+        offlineEditText.addTextChangedListener(new
 
-        offlineEditText.addTextChangedListener(new TextWatcher() {
+                                                       TextWatcher() {
+                                                           @Override
+                                                           public void afterTextChanged(Editable mEdit) {
+
+                                                               String text = mEdit.toString();
+
+                                                               Weather findWeather = db.findWeather(text);
+                                                               if (!findWeather.getTownName().isEmpty()) {
+                                                                   instantiateWeather(findWeather);
+
+                                                               }
+
+
+                                                               return;
+
+                                                           }
+
+
+                                                           public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                                           }
+
+                                                           public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                                           }
+                                                       });
+
+        Button forecast = (Button)findViewById(R.id.forecast);
+
+        forecast.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void afterTextChanged(Editable mEdit) {
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,  ForecastActivity.class);
 
-                String text = mEdit.toString();
+                if (townName!=null) {
 
-                Weather findWeather = db.findWeather(text);
-                if (!findWeather.getTownName().isEmpty()) {
-                    instantiateWeather(findWeather);
+                    intent.putExtra("one", townName);
+
+                    startActivity(intent);
+                }
+                else {
 
                 }
 
-                return;
-
-            }
-
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
 
-
-    }
-
-
-    public void onItemSelected(AdapterView adapter, View v, int position, long id) {
-
-
-        switch (position) {
-            case 0:
-                metric = "metric&appid";
-
-                connect();
-
-
-                break;
-            case 1:
-                // Whatever you want to happen when the second item gets selected
-                metric = "&appid";
-
-                connect();
-
-
-                break;
-            case 2:
-                metric = "imperial&appid";
-
-                connect();
-
-                break;
-
-        }
-
-
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 
@@ -345,6 +354,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         protected void onPostExecute(String resultJson) {
             super.onPostExecute(resultJson);
 
+
             if (resultJson.isEmpty() || resultJson == null) {
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -354,448 +364,232 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 }
                 ft.addToBackStack(null);
 
-                MyCustomFragment dialogFragment = new MyCustomFragment();
+                MyWarningFragment dialogFragment = new MyWarningFragment();
                 dialogFragment.show(ft, "dialog");
 
                 return;
 
 
-            }
+            } else {
 
 
                 Weather weather = parseData(resultJson);
-
-                ArrayList<Weather> list = db.listWeathers();
 
                 db.addWeather(weather);
 
                 instantiateWeather(weather);
 
-
             }
+
+
         }
+    }
 
 
-        public boolean isOnline() {
-            ConnectivityManager cm =
-                    (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getActiveNetworkInfo();
-            return netInfo != null && netInfo.isConnectedOrConnecting();
-        }
-
-
-        class MyTask extends AsyncTask<Integer, Integer, String> {
-            @Override
-            protected String doInBackground(Integer... params) {
-                for (; count <= params[0]; count++) {
-                    try {
-                        Thread.sleep(10);
-                        publishProgress(count + 10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+    class MyTask extends AsyncTask<Integer, Integer, String> {
+        @Override
+        protected String doInBackground(Integer... params) {
+            for (; count <= params[0]; count++) {
+                try {
+                    Thread.sleep(10);
+                    publishProgress(count + 10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                return "Progress update";
             }
-
-
-            @Override
-            protected void onPostExecute(String result) {
-                simpleProgressBar.setVisibility(View.GONE);
-
-            }
-
-
-            @Override
-            protected void onPreExecute() {
-
-
-            }
-
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-
-                simpleProgressBar.setProgress(values[0]);
-            }
+            return "Progress update";
         }
 
-        public void connect() {
-            if (isOnline()) {
 
-                timer = new Timer();
+        @Override
+        protected void onPostExecute(String result) {
+            simpleProgressBar.setVisibility(View.GONE);
 
-                timer.scheduleAtFixedRate(new TimerTask() {
-
-                                              @Override
-                                              public void run() {
+        }
 
 
-                                                  Bundle savedInstanceState = getIntent().getExtras();
-
-                                                  if (savedInstanceState != null) {
-                                                      townName = savedInstanceState.getString("townName");
-
-                                                  }
-
-                                                  if (townName != null) {
-                                                      weatherUrl = template + "=" + townName + "&units=" + metric + "=" + key;
-                                                      new ParseTask(weatherUrl).execute();
-
-                                                  } else {
+        @Override
+        protected void onPreExecute() {
 
 
-                                                  }
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+
+            simpleProgressBar.setProgress(values[0]);
+        }
+    }
+
+
+    public void connect() {
+        if (wm.isWifiEnabled()) {
+
+            timer = new Timer();
+
+            timer.scheduleAtFixedRate(new TimerTask() {
+
+                                          @Override
+                                          public void run() {
+
+                                              if (townName != null) {
+                                                  weatherUrl = template + "=" + townName + "&units=" + metric + "=" + key;
+                                                  new ParseTask(weatherUrl).execute();
+
                                               }
 
-                                          },
-                        0,
-                        18000000);
-            } else {
 
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
+                                          }
 
-                MyCustomFragment dialogFragment = new MyCustomFragment();
-                dialogFragment.show(ft, "dialog");
+                                      },
+                    0,
+                    18000000);
+        } else {
 
-
-
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+            if (prev != null) {
+                ft.remove(prev);
             }
+            ft.addToBackStack(null);
 
+            MyOfflineFragment dialogFragment = new MyOfflineFragment();
 
-        }
-
-        public void instantiateWeather(Weather weather) {
-
-            cityText.setText(weather.getTownName());
-
-
-            switch (metric) {
-                case "metric&appid":
-
-                    grad = "ºC";
-
-
-                    break;
-                case "&appid":
-
-                    grad = "ºK";
-
-                    break;
-                case "imperial&appid":
-
-                    grad = "ºF";
-                    break;
-
-                default:
-
-                    grad = "ºC";
-
-                    break;
-            }
-            description.setText(weather.getWeatherDescription());
-
-
-            average.setText(Math.round(Double.valueOf(weather.getAverageTemperature())) + " " + grad);
-
-
-            max.setText("max" + " " + Math.round(Double.valueOf(weather.getMaxTemperature())) + " " + grad);
-
-
-            min.setText("min" + " " + Math.round(Double.valueOf(weather.getMinTemperature())) + " " + grad);
-
-
-            wind.setText("Wind speed" + " " + weather.getWind() + " " + "m/s");
-
-            pressure.setText("Pressure" + " " + weather.getPressure() + " " + "mm");
-
-            humidity.setText("Humidity" + " " + weather.getHumidity() + " " + "%");
-
-
-            Picasso.with(getApplicationContext())
-                    .load(imageUrl + weather.getImage() + ".png")
-                    .into(image);
-
-            getWeatherPics(weather);
-
-
-            Log.i(TAG, "данные обновлены");
-
-
-            count = 0;
-            simpleProgressBar.setVisibility(View.VISIBLE);
-            simpleProgressBar.setProgress(0);
-
-            new MyTask().execute(100);
-
-        }
-
-        public Weather parseData(String resultJson) {
-
-            JSONObject dataJsonObj = null;
-
-            Weather weather = new Weather();
-
-
-            try {
-
-
-                // We create out JSONObject from the data
-                JSONObject jObj = new JSONObject(resultJson);
-
-                // We start extracting the info
-
-                String townName = jObj.optString("name").toString();
-
-                weather.setTownName(townName);
-
-
-                JSONArray jArr = jObj.getJSONArray("weather");
-
-                // We use only the first value
-                JSONObject JSONWeather = jArr.getJSONObject(0);
-
-                String weatherDescription = JSONWeather.optString("description").toString();
-
-                weather.setWeatherDescription(weatherDescription);
-
-                String icon = JSONWeather.optString("icon").toString();
-
-                weather.setImage(icon);
-
-                JSONObject mainObj = jObj.getJSONObject("main");
-
-                String averageTemperature = mainObj.optString("temp").toString();
-
-
-                weather.setAverageTemperature(averageTemperature);
-
-
-                String maxTemperature = mainObj.optString("temp_max").toString();
-
-                weather.setMaxTemperature(maxTemperature);
-
-
-                String minTemperature = mainObj.optString("temp_min").toString();
-
-                weather.setMinTemperature(minTemperature);
-
-                String pressure = mainObj.optString("pressure").toString();
-
-                weather.setPressure(pressure);
-
-                String humidity = mainObj.optString("humidity").toString();
-
-                weather.setHumidity(humidity);
-
-
-                JSONObject windObj = jObj.getJSONObject("wind");
-
-                String wind = windObj.optString("speed").toString();
-
-                weather.setWind(wind);
-
-                JSONObject sysObj = jObj.getJSONObject("sys");
-
-
-                sunrise = sysObj.getString("sunrise");
-
-                weather.setSunrise(Long.valueOf(sunrise));
-
-                sunset = sysObj.getString("sunset");
-
-                weather.setSunset(Long.valueOf(sunset));
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-
-
-            }
-
-            return weather;
-        }
-
-        void getWeatherPics(Weather weather) {
-
-            Long sunriseTime = weather.getSunrise();
-
-            Long sunsetTime = weather.getSunset();
-
-            long javasunsetTime = sunsetTime * 1000L;
-
-            long javasunriseTime = sunriseTime * 1000L;
-
-            long now = System.currentTimeMillis();
-
-            if ((Long) javasunsetTime == null && (Long) javasunriseTime == null) {
-                return;
-            }
-
-            if (now > javasunriseTime && now < javasunsetTime) {
-                //set your background here
-                analizeWeatherDay(weather.getWeatherDescription());
-            } else {
-                //set your background here
-                analizeWeatherNight(weather.getWeatherDescription());
-            }
-        }
-
-        void analizeWeatherDay(String weatherDescription) {
-
-            setDayColor();
-
-            ImageView fone = (ImageView) findViewById(R.id.fone);
-            Resources res = getResources();
-
-            if (weatherDescription.contains("clear")) {
-
-                Drawable drawable = res.getDrawable(R.drawable.sun);
-                setCompability(fone, drawable);
-
-
-            }
-            if (weatherDescription.contains("drizzle")) {
-
-
-                Drawable drawable = res.getDrawable(R.drawable.rain);
-                setCompability(fone, drawable);
-
-
-            }
-
-            if (weatherDescription.contains("rain")) {
-
-                Drawable drawable = res.getDrawable(R.drawable.rain);
-                setCompability(fone, drawable);
-
-            }
-
-            if (weatherDescription.contains("clouds")) {
-
-                Drawable drawable = res.getDrawable(R.drawable.cloud);
-                setCompability(fone, drawable);
-
-            }
-
-            if (weatherDescription.contains("snow")) {
-
-                Drawable drawable = res.getDrawable(R.drawable.snow);
-                setCompability(fone, drawable);
-
-            }
+            dialogFragment.show(ft, "dialog");
 
 
         }
 
 
-        void analizeWeatherNight(String weatherDescription) {
+    }
 
-            setNightColor();
+    public void instantiateWeather(Weather weather) {
 
-            ImageView fone = (ImageView) findViewById(R.id.fone);
-            Resources res = getResources();
+        cityText.setText(weather.getTownName());
 
-            if (weatherDescription.contains("clear")) {
-
-                Drawable drawable = res.getDrawable(R.drawable.night_clear);
-                setCompability(fone, drawable);
+        description.setText(getWeatherInfo(weather.getWeatherDescription()));
 
 
-            }
-            if (weatherDescription.contains("drizzle")) {
+        average.setText(Math.round(Double.valueOf(weather.getAverageTemperature())) + " " + getResources().getString(R.string.grad));
 
 
-                Drawable drawable = res.getDrawable(R.drawable.night_rain);
-                setCompability(fone, drawable);
+        max.setText(getResources().getString(R.string.max) + " " + Math.round(Double.valueOf(weather.getMaxTemperature())) + " " + getResources().getString(R.string.grad));
 
-            }
 
-            if (weatherDescription.contains("rain")) {
+        min.setText(getResources().getString(R.string.min) + " " + Math.round(Double.valueOf(weather.getMinTemperature())) + " " + getResources().getString(R.string.grad));
 
-                Drawable drawable = res.getDrawable(R.drawable.night_rain);
-                setCompability(fone, drawable);
 
-            }
+        wind.setText(getResources().getString(R.string.wind) + " " + weather.getWind() + " " + getResources().getString(R.string.ms));
 
-            if (weatherDescription.contains("clouds")) {
+        pressure.setText(getResources().getString(R.string.pressure) + " " + weather.getPressure() + " " + getString(R.string.mmHg));
 
-                Drawable drawable = res.getDrawable(R.drawable.night_cloud);
-                setCompability(fone, drawable);
+        humidity.setText(getResources().getString(R.string.humidity) + " " + weather.getHumidity() + " " + getString(R.string.percent));
 
-            }
 
-            if (weatherDescription.contains("snow")) {
+        Picasso.with(getApplicationContext())
+                .load(imageUrl + weather.getImage() + ".png")
+                .into(image);
 
-                Drawable drawable = res.getDrawable(R.drawable.night_snow);
-                setCompability(fone, drawable);
+        WeatherPics weatherPics = new WeatherPics(this, weather);
 
-            }
+        weatherPics.getWeatherPics(weather);
+
+        count = 0;
+        simpleProgressBar.setVisibility(View.VISIBLE);
+        simpleProgressBar.setProgress(0);
+
+        new MyTask().execute(100);
+
+    }
+
+    public Weather parseData(String resultJson) {
+
+        JSONObject dataJsonObj = null;
+
+        Weather weather = new Weather();
+
+
+        try {
+
+
+            // We create out JSONObject from the data
+            JSONObject jObj = new JSONObject(resultJson);
+
+            // We start extracting the info
+
+            String townName = jObj.optString("name").toString();
+
+            weather.setTownName(townName);
+
+
+            JSONArray jArr = jObj.getJSONArray("weather");
+
+
+            JSONObject JSONWeather = jArr.getJSONObject(0);
+
+            String weatherDescription = JSONWeather.optString("description").toString();
+
+            weather.setWeatherDescription(weatherDescription);
+
+            String icon = JSONWeather.optString("icon").toString();
+
+            weather.setImage(icon);
+
+            JSONObject mainObj = jObj.getJSONObject("main");
+
+            String averageTemperature = mainObj.optString("temp").toString();
+
+
+            weather.setAverageTemperature(averageTemperature);
+
+
+            String maxTemperature = mainObj.optString("temp_max").toString();
+
+            weather.setMaxTemperature(maxTemperature);
+
+
+            String minTemperature = mainObj.optString("temp_min").toString();
+
+            weather.setMinTemperature(minTemperature);
+
+            String pressure = mainObj.optString("pressure").toString();
+
+            weather.setPressure(pressure);
+
+            String humidity = mainObj.optString("humidity").toString();
+
+            weather.setHumidity(humidity);
+
+
+            JSONObject windObj = jObj.getJSONObject("wind");
+
+            String wind = windObj.optString("speed").toString();
+
+            weather.setWind(wind);
+
+            JSONObject sysObj = jObj.getJSONObject("sys");
+
+
+            sunrise = sysObj.getString("sunrise");
+
+            weather.setSunrise(Long.valueOf(sunrise));
+
+            sunset = sysObj.getString("sunset");
+
+            weather.setSunset(Long.valueOf(sunset));
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
 
 
         }
 
-
-
-        private void setDayColor() {
-            cityText.setTextColor(Color.parseColor("#000000"));
-
-            description.setTextColor(Color.parseColor("#000000"));
-
-
-            average.setTextColor(Color.parseColor("#000000"));
-
-
-            max.setTextColor(Color.parseColor("#000000"));
-
-
-            min.setTextColor(Color.parseColor("#000000"));
-
-
-            wind.setTextColor(Color.parseColor("#000000"));
-
-            pressure.setTextColor(Color.parseColor("#000000"));
-
-            humidity.setTextColor(Color.parseColor("#000000"));
-        }
-
-        private void setNightColor() {
-            cityText.setTextColor(Color.parseColor("#FFFFFF"));
-
-            description.setTextColor(Color.parseColor("#FFFFFF"));
-
-
-            average.setTextColor(Color.parseColor("#FFFFFF"));
-
-
-            max.setTextColor(Color.parseColor("#FFFFFF"));
-
-
-            min.setTextColor(Color.parseColor("#FFFFFF"));
-
-
-            wind.setTextColor(Color.parseColor("#FFFFFF"));
-
-            pressure.setTextColor(Color.parseColor("#FFFFFF"));
-
-            humidity.setTextColor(Color.parseColor("#FFFFFF"));
-
-        }
-
-        private void setCompability(ImageView fone, Drawable drawable) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                fone.setBackground(drawable);
-            } else {
-                fone.setBackground(drawable);
-            }
-        }
+        return weather;
+    }
 
     public com.google.firebase.appindexing.Action getAction() {
-        return Actions.newView( "Main Page", "http://host/path");
+        return Actions.newView("Main Page", "http://host/path");
     }
 
 
@@ -817,6 +611,81 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
 
 
+
+
+
+    public String getWeatherInfo(String description) {
+
+        if (description.contains("clear sky")) {
+
+            description = getResources().getString(R.string.clear_sky);
+
+        }
+
+
+        if (description.contains("few clouds")) {
+
+            description = getResources().getString(R.string.few_clouds);
+
+        }
+
+        if (description.contains("scattered clouds")) {
+
+            description = getResources().getString(R.string.scattered_clouds);
+
+        }
+
+        if (description.contains("broken clouds")) {
+
+            description = getResources().getString(R.string.broken_clouds);
+
+        }
+
+        if (description.contains("mist")) {
+
+            description = getResources().getString(R.string.mist);
+
+        }
+
+        if (description.contains("shower rain")) {
+
+            description = getResources().getString(R.string.shower_rain);
+
+        }
+
+        if (description.contains("rain")) {
+
+            description = getResources().getString(R.string.rain);
+
+        }
+
+        if (description.contains("thunderstorm")) {
+
+            description = getResources().getString(R.string.thunderstorm);
+
+        }
+
+        if (description.contains("snow")) {
+
+            description = getResources().getString(R.string.snow);
+
+        }
+
+        if (description.contains("haze")) {
+
+            description = getResources().getString(R.string.mist);
+
+        }
+
+        if (description.contains("mist")) {
+
+            description = getResources().getString(R.string.mist);
+
+        }
+
+        return description;
+
+    }
 
 }
 

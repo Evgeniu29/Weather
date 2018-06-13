@@ -5,166 +5,180 @@
     android:layout_height="match_parent"
     >
 
+    <RelativeLayout
+        android:id="@+id/headerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" >
+
+        <EditText
+            android:id="@+id/offlibeEditText"
+            android:layout_width="225dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            />
+
+        <Button
+            android:layout_width="70dp"
+            android:layout_height="25dp"
+            android:layout_toRightOf="@id/offlibeEditText"
+            android:background="@drawable/buttonshape"
+            android:text = "@string/forecast"
+            android:textSize = "8dp"
+            android:id="@+id/forecast"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="10dp"/>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/layout1"
+        android:layout_below="@id/headerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+       >
 
 
         <fragment
             android:id="@+id/place_autocomplete_fragment"
             android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_width="400dp"
-            android:layout_height="200dp" />
-
-        <EditText
-            android:id="@+id/offlibeEditText"
-            android:layout_width="400dp"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/place_autocomplete_fragment"
-            android:textSize="35sp" />
-
-
-        <Button
-            android:id="@+id/delete"
-            android:layout_width="250dp"
-            android:layout_height="80dp"
-            android:layout_below="@id/spinner"
-            android:layout_marginLeft="100dp"
-            android:layout_toRightOf="@+id/offlibeEditText"
-            android:background="@drawable/buttonshape"
-            android:text="Remove from database"
-            android:textSize="15sp"
-
-            />
-
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="400dp"
-            android:layout_height="45dp"
-            android:layout_below="@id/offlibeEditText"
-            android:layout_centerHorizontal="true"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="20dp"
-            android:progressDrawable="@drawable/progress_drawable"
-            android:visibility="invisible" />
-
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="100dp"
-            android:layout_height="120dp"
-            android:layout_marginBottom="30dp"
-            android:layout_marginLeft="175dp"
-            android:layout_marginTop="30dp"
-            android:layout_toRightOf="@id/place_autocomplete_fragment"
-            android:background="@drawable/buttonshape"
-            android:gravity="center"
-            android:spinnerMode="dropdown"
-            android:textSize="15sp" />
+         />
 
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/layout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout1"
+       >
+
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="250dp"
+        android:layout_height="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:progressDrawable="@drawable/progress_drawable"
+        android:visibility="invisible"
+       />
+
+    </RelativeLayout>
+
+
+
+    <ImageView
+        android:id="@+id/fone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:layout_below="@id/layout2"
+        >
+
+    </ImageView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout2"
+       >
 
     <RelativeLayout
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layout1"
-
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout2"
+        android:id="@+id/layout3"
         >
 
-        <ImageView
-            android:id="@+id/fone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </ImageView>
-
         <TextView
+            android:layout_marginTop="8dp"
             android:id="@+id/cityText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="350dp"
-            android:layout_marginTop="20dp"
-            android:textSize="65sp" />
-
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:gravity="left"
+            android:textSize="16sp"
+            android:layout_marginLeft="50dp"/>
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/cityText"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="15dp" />
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_below="@+id/cityText"
+            android:gravity="left"
+            android:layout_marginLeft="50dp"
+
+            />
 
 
         <TextView
             android:id="@+id/average"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/image"
-            android:layout_marginLeft="100dp"
-            android:layout_marginStart="57dp"
-            android:layout_marginTop="15dp"
-            android:layout_toEndOf="@+id/image"
-            android:textSize="65sp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@+id/image"
+            android:textSize="14sp"
+            android:gravity="left"
+            android:layout_marginLeft="50dp"
+
 
             />
 
-        <TextView
 
+        <TextView
+            android:layout_marginTop="8dp"
             android:id="@+id/min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/max"
-            android:layout_marginLeft="100dp"
-            android:layout_marginStart="20dp"
-            android:layout_toEndOf="@+id/image"
-            android:textSize="50sp"
+            android:layout_below="@id/average"
+            android:textSize="12sp"
+            android:gravity="left"
+            android:layout_marginLeft="50dp"
 
             />
 
-        <TextView
-
-            android:id="@+id/max"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/average"
-            android:layout_marginLeft="100dp"
-            android:layout_marginStart="28dp"
-            android:layout_toEndOf="@+id/average"
-            android:textSize="50sp"
-
-            />
+            <TextView
+                android:layout_marginTop="8dp"
+                android:id="@+id/max"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/average"
+                android:layout_marginLeft="125dp"
+                android:textSize="12sp"
+                android:gravity="left"
+                />
 
 
         <TextView
+            android:layout_marginTop="8dp"
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/image"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="40dp"
+            android:layout_below="@+id/min"
             android:gravity="left"
-            android:textSize="35sp"
+            android:textSize="14sp"
+            android:layout_marginLeft="50dp"
 
             />
 
         <TextView
+
             android:id="@+id/wind"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/description"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:gravity="left"
-            android:textSize="35dp"
+            android:textSize="14dp"
+            android:layout_marginLeft="50dp"
 
             />
 
@@ -172,11 +186,11 @@
             android:id="@+id/pressure"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/wind"
             android:layout_below="@+id/wind"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:gravity="left"
-            android:textSize="35dp"
+            android:textSize="14dp"
+            android:layout_marginLeft="50dp"
 
             />
 
@@ -185,13 +199,19 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pressure"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:gravity="left"
-            android:textSize="35dp"
+            android:textSize="14dp"
+            android:layout_marginLeft="50dp"
 
             />
 
-    </RelativeLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+
 
 </RelativeLayout>
+

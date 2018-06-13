@@ -1,3 +1,45 @@
 <resources>
     <string name="app_name">Weather</string>
+    <string name="warning">The city was not found. Verify that the name is correct.</string>
+    <string name="celsius">Celsius</string>
+    <string name="kelvin">Kelvin</string>
+    <string name="farengeit">Farenheit</string>
+    <string name="remove">Remove all weathers from database?</string>
+    <string name="wind">Wind</string>
+    <string name="pressure">Pressure</string>
+    <string name="max">max</string>
+    <string name="min">min</string>
+    <string name="humidity">humidity</string>
+    <string name="ms">m/s</string>
+    <string name="mmHg">mm Hg</string>
+    <string name="percent">%</string>
+    <string name="clear_sky">clear sky</string>
+    <string name="few_clouds">few clouds</string>
+    <string name="scattered_clouds">scattered clouds</string>
+    <string name="broken_clouds"> broken clouds</string>
+    <string name="shower_rain">shower rain</string>
+    <string name="rain">rain</string>
+    <string name="thunderstorm">thunderstorm</string>
+    <string name="snow">snow</string>
+    <string name="mist">mist</string>
+    <string name="find">Find town in  database</string>
+    <string name="offline">Device is oflline. Internet connection not found</string>
+    <string name="forecast">Forecast on 3 days</string>
+    <string name="grad">ºC</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+
+
+
+
+
+
+    <string-array name="grad">
+        <item>@string/celsius</item>
+        <item>@string/kelvin</item>
+        <item>@string/farengeit</item>
+    </string-array>
+    <string name="name">Weather</string>
+
+
 </resources>
